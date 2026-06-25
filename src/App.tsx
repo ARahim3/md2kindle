@@ -318,7 +318,7 @@ export default function App() {
           <div className="step-head">
             <div className="step-head-l">
               <span className="step-num">I.</span>
-              <h2 className="step-title">Your manuscript</h2>
+              <h2 className="step-title">Your source</h2>
             </div>
             <span className="step-hint">{activeMode.hint}</span>
           </div>
