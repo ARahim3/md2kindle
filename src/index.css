@@ -87,12 +87,26 @@ body::before {
   font-family: var(--mono);
 }
 
-/* ---------- Palette switch ---------- */
+/* ---------- Top bar (source link + palette switch) ---------- */
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 22px;
+}
+.gh-link {
+  display: inline-flex;
+  align-items: center;
+  color: var(--soft);
+  transition: color 0.15s;
+}
+.gh-link:hover {
+  color: var(--accent);
+}
 .palette-switch {
   display: flex;
   justify-content: flex-end;
   gap: 6px;
-  padding-top: 22px;
 }
 .palette-switch button {
   font-family: var(--mono);
@@ -896,6 +910,23 @@ select:focus,
   margin-top: 64px;
   padding-top: 30px;
   border-top: 1px solid var(--line);
+}
+.source-line {
+  margin: 0 0 14px;
+}
+.source-line a {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.03em;
+  color: var(--soft);
+  text-decoration: none;
+  transition: color 0.15s;
+}
+.source-line a:hover {
+  color: var(--accent);
 }
 .colophon p {
   margin: 0 0 12px;

@@ -3,7 +3,12 @@
   "private": true,
   "version": "1.0.0",
   "type": "module",
-  "description": "Convert Markdown to Kindle-ready EPUB entirely in your browser — diagrams, math, and images included.",
+  "description": "Convert Markdown or HTML to a Kindle-ready EPUB entirely in your browser — diagrams, math, and images included.",
+  "homepage": "https://md2kindle.vercel.app/",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ARahim3/md2kindle.git"
+  },
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit && vite build",

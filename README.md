@@ -3,6 +3,14 @@
 **Turn Markdown or HTML into a clean, Kindle-ready EPUB — entirely in your browser.**
 Diagrams, equations and images included. Nothing is ever uploaded.
 
+<p align="center">
+  <a href="https://md2kindle.vercel.app/">
+    <img src="docs/md2kindle_site.png" alt="md2kindle — Markdown & HTML to a Kindle-ready EPUB, entirely on your device" width="620">
+  </a>
+  <br />
+  <a href="https://md2kindle.vercel.app/"><b>→ Try it live at md2kindle.vercel.app</b></a>
+</p>
+
 ## Why this exists
 
 A lot of what's worth reading now begins life as a Markdown or HTML file. You ask
