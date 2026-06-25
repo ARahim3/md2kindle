@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- light paper tile -->
+  <rect x="2" y="2" width="60" height="60" rx="14" fill="#f3ecdf" stroke="#d8ccb8" stroke-width="1.5"/>
+  <!-- e-reader device (ink bezel) -->
+  <rect x="17" y="10" width="30" height="44" rx="7" fill="#221c16"/>
+  <!-- screen -->
+  <rect x="21" y="14" width="22" height="36" rx="4" fill="#faf7f0"/>
+  <!-- bookmark ribbon -->
+  <path d="M31 14 h6 v12 l-3 -3 l-3 3 z" fill="#bf4720"/>
+</svg>

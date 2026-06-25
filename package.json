@@ -1,0 +1,36 @@
+{
+  "name": "md2kindle",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Convert Markdown to Kindle-ready EPUB entirely in your browser — diagrams, math, and images included.",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview --port 4173 --strictPort",
+    "test:deps": "node scripts/check-deps.mjs",
+    "test:e2e": "node scripts/e2e.mjs"
+  },
+  "dependencies": {
+    "@mozilla/readability": "^0.6.0",
+    "dompurify": "^3.2.4",
+    "jszip": "^3.10.1",
+    "markdown-it": "^14.1.0",
+    "markdown-it-footnote": "^4.0.0",
+    "markdown-it-task-lists": "^2.1.1",
+    "mathjax-full": "^3.2.2",
+    "mermaid": "^11.4.1",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@types/markdown-it": "^14.1.2",
+    "@types/node": "^26.0.0",
+    "@types/react": "^18.3.18",
+    "@types/react-dom": "^18.3.5",
+    "@vitejs/plugin-react": "^4.3.4",
+    "playwright": "^1.61.0",
+    "typescript": "^5.7.3",
+    "vite": "^6.0.7"
+  }
+}

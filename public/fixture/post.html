@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <title>A Test Post — Fixtures Daily</title>
+  <meta name="author" content="E2E Bot"/>
+</head>
+<body>
+  <header class="site-header"><nav><a href="/">Home</a> · <a href="/about">About</a></nav></header>
+  <aside class="sidebar"><h3>Sponsored</h3><p>Buy now! Subscribe to our newsletter for weekly deals!</p></aside>
+  <main>
+    <article>
+      <h1>A Test Post</h1>
+      <p class="byline">By E2E Bot</p>
+      <p>This article exists so the end-to-end test can verify URL import from
+      beginning to end: fetching the page through the server-side proxy, cleaning
+      it with Readability, resolving a relative image, and binding the result
+      into a valid EPUB. We add a little more prose here so the extractor is
+      confident this block is the real article and not boilerplate.</p>
+      <p>Here is a relative image that must be absolutised, proxied past CORS, and
+      embedded into the book:</p>
+      <p><img src="./cat.png" alt="a test pixel" width="600" height="360"/></p>
+      <h2>Second section</h2>
+      <p>More body text follows so that the article comfortably clears the length
+      threshold used to decide whether the main-content extraction succeeded.
+      Reading on e-ink is calmer than a glowing browser tab full of pop-ups.</p>
+    </article>
+  </main>
+  <footer class="site-footer"><p>© Fixtures Daily. Cookie policy · Terms of service.</p></footer>
+</body>
+</html>
