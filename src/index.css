@@ -883,6 +883,34 @@ select:focus,
 .download-btn:hover {
   transform: translateY(-2px);
 }
+.result-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 14px;
+}
+.read-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  font-family: var(--serif);
+  font-style: italic;
+  font-weight: 600;
+  font-size: 19px;
+  color: var(--ink);
+  background: transparent;
+  border: 1px solid var(--ink);
+  border-radius: 6px;
+  padding: 13px 30px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.read-btn:hover {
+  background: var(--ink);
+  color: var(--paper);
+  transform: translateY(-2px);
+}
 .send-note {
   margin-top: 14px;
   font-family: var(--serif);
@@ -993,6 +1021,358 @@ select:focus,
   }
   .cover-layout {
     justify-content: center;
+  }
+}
+
+/* ---------- Reader (in-browser EPUB preview) ----------
+   Takes over the full viewport rather than floating as a fixed overlay (a fixed
+   full-screen layer shimmers against the paper background on mobile). */
+.reader-boot {
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  background: var(--paper);
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  color: var(--soft);
+}
+.reader {
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  background: var(--paper);
+  background-image: radial-gradient(125% 80% at 50% -10%, var(--card) 0%, var(--paper) 55%, var(--paper-2) 100%);
+}
+
+.reader-bar {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 18px;
+  border-bottom: 1px solid var(--line);
+  background: color-mix(in srgb, var(--card) 70%, transparent);
+}
+.rd-title {
+  flex: 1;
+  min-width: 0;
+  text-align: center;
+  font-family: var(--serif);
+  font-style: italic;
+  font-weight: 600;
+  font-size: 18px;
+  color: var(--ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.rd-tools {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.rd-btn {
+  font-family: var(--mono);
+  font-size: 11.5px;
+  letter-spacing: 0.04em;
+  color: var(--soft);
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 7px 14px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s;
+}
+.rd-btn:hover:not(:disabled) {
+  border-color: var(--ink);
+  color: var(--ink);
+}
+.rd-btn.active {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--paper);
+}
+.rd-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.rd-palette,
+.rd-font {
+  display: inline-flex;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  overflow: hidden;
+}
+.rd-palette button,
+.rd-font button {
+  font-family: var(--mono);
+  font-size: 11.5px;
+  width: 30px;
+  height: 30px;
+  background: transparent;
+  border: none;
+  color: var(--soft);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.rd-palette button:hover,
+.rd-font button:hover:not(:disabled) {
+  color: var(--ink);
+  background: color-mix(in srgb, var(--ink) 7%, transparent);
+}
+.rd-palette button.active {
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+.rd-font button:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+/* The "device" — a Kindle-ish bezel cradling the page. */
+.reader-stage {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  padding: 26px 20px;
+}
+.device {
+  width: min(760px, 100%);
+  display: flex;
+  background: linear-gradient(165deg, var(--paper-2), var(--paper));
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  padding: 16px;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.5) inset,
+    0 40px 70px -44px rgba(40, 30, 18, 0.7);
+}
+.device-screen {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  border-radius: 5px;
+  border: 1px solid var(--line);
+  background: var(--card);
+  box-shadow: 0 1px 4px rgba(40, 30, 18, 0.06) inset;
+}
+.reader-frame {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  background: transparent;
+}
+
+/* Tap zones for page turns — narrow, so the centre stays selectable. */
+.nav-zone {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 26%;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  padding: 0 10px;
+  color: var(--soft);
+  opacity: 0;
+  transition: opacity 0.18s;
+}
+.nav-zone .chev {
+  font-family: var(--serif);
+  font-size: 34px;
+  line-height: 1;
+}
+.nav-zone.left {
+  left: 0;
+  justify-content: flex-start;
+}
+.nav-zone.right {
+  right: 0;
+  justify-content: flex-end;
+}
+.device-screen:hover .nav-zone:not(:disabled) {
+  opacity: 0.55;
+}
+.nav-zone:hover:not(:disabled) {
+  opacity: 1 !important;
+  background: linear-gradient(to var(--dir, right), color-mix(in srgb, var(--ink) 8%, transparent), transparent);
+}
+.nav-zone.left:hover {
+  --dir: left;
+}
+.nav-zone:disabled {
+  cursor: default;
+}
+
+/* Loading / error wash over the screen. */
+.reader-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  background: var(--card);
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--soft);
+  text-align: center;
+  padding: 24px;
+}
+.reader-err {
+  color: var(--accent-deep);
+  max-width: 320px;
+}
+.reader-spin {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2px solid var(--line);
+  border-top-color: var(--accent);
+  animation: rd-spin 0.8s linear infinite;
+}
+@keyframes rd-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Table of contents drawer. */
+.toc {
+  position: absolute;
+  inset: 0;
+  background: color-mix(in srgb, var(--ink) 22%, transparent);
+  display: flex;
+  justify-content: flex-end;
+  animation: rd-fade 0.18s ease both;
+}
+.toc-panel {
+  width: min(320px, 82%);
+  background: var(--card);
+  border-left: 1px solid var(--line);
+  overflow-y: auto;
+  padding: 8px 0 20px;
+  box-shadow: -20px 0 40px -28px rgba(40, 30, 18, 0.8);
+}
+.toc-head {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--soft);
+  padding: 16px 20px 10px;
+}
+.toc-panel ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.toc-panel li button {
+  display: flex;
+  gap: 12px;
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  border: none;
+  border-top: 1px solid var(--line);
+  padding: 12px 20px;
+  cursor: pointer;
+  color: var(--ink);
+  transition: background 0.12s;
+}
+.toc-panel li button:hover {
+  background: color-mix(in srgb, var(--ink) 6%, transparent);
+}
+.toc-panel li button.active {
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+}
+.toc-n {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--accent);
+  padding-top: 3px;
+  min-width: 16px;
+}
+.toc-t {
+  font-family: var(--serif);
+  font-size: 16px;
+  line-height: 1.35;
+}
+
+/* Footer: progress + locator. */
+.reader-foot {
+  padding: 12px 22px 16px;
+  border-top: 1px solid var(--line);
+  background: color-mix(in srgb, var(--card) 70%, transparent);
+}
+.rf-bar {
+  height: 3px;
+  background: var(--paper-2);
+  border-radius: 999px;
+  overflow: hidden;
+}
+.rf-fill {
+  height: 100%;
+  background: var(--accent);
+  transition: width 0.28s ease;
+}
+.rf-meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 8px;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.03em;
+  color: var(--soft);
+}
+.rf-ch {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.rf-pg {
+  white-space: nowrap;
+}
+@keyframes rd-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@media (max-width: 620px) {
+  .reader-bar {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .rd-title {
+    order: -1;
+    flex-basis: 100%;
+  }
+  .reader-stage {
+    padding: 12px 10px;
+  }
+  .device {
+    padding: 9px;
+    border-radius: 16px;
+  }
+  /* On a phone the tap zones are the only way to turn — keep them faintly visible. */
+  .nav-zone:not(:disabled) {
+    opacity: 0.3;
   }
 }
 

@@ -4,6 +4,7 @@ dist-ssr
 *.local
 .DS_Store
 .claude
+CLAUDE.md
 temp_files/
 .vscode/*
 !.vscode/extensions.json

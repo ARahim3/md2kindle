@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react';
 import {
   droppedToSupplied,
   pickedToSupplied,
@@ -36,7 +36,7 @@ const FORMATS: { id: SourceKind; label: string }[] = [
 
 const MODES: { id: InputMode; label: string; hint: string }[] = [
   { id: 'paste', label: 'Paste', hint: 'Paste your text straight in — best for quick documents.' },
-  { id: 'url', label: 'URL', hint: 'Fetch a web page (or raw file) by link, images and all.' },
+  { id: 'url', label: 'URL', hint: 'Fetch a web page by link, images and all.' },
   { id: 'file', label: 'Single file', hint: 'Choose one document file from your device.' },
   { id: 'files', label: 'File + images', hint: 'Pick the document with its image files (matched by name).' },
   { id: 'folder', label: 'Folder', hint: 'Drop a whole folder; relative image paths resolve automatically.' },
@@ -56,6 +56,8 @@ const COVER_NOTES: Record<'auto' | 'upload' | 'none', string> = {
 };
 
 const REPO_URL = 'https://github.com/ARahim3/md2kindle';
+
+const Reader = lazy(() => import('./Reader'));
 
 function GitHubMark() {
   return (
@@ -106,8 +108,10 @@ export default function App() {
   const [result, setResult] = useState<ConvertResult | null>(null);
   const [downloadUrl, setDownloadUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [readerOpen, setReaderOpen] = useState(false);
 
   const dirInputRef = useRef<HTMLInputElement>(null);
+  const savedScroll = useRef(0);
 
   const content =
     mode === 'paste' ? pasteText : mode === 'url' ? fetchedContent : docs[docIndex]?.text ?? '';
@@ -127,6 +131,14 @@ export default function App() {
       /* ignore */
     }
   }, [palette]);
+
+  // The reader takes over the whole viewport (no fixed overlay — that shimmers
+  // on mobile). Stash the scroll position on the way in, restore it on the way
+  // out so closing the reader lands you back where you were.
+  useEffect(() => {
+    if (readerOpen) savedScroll.current = window.scrollY;
+    else window.scrollTo(0, savedScroll.current);
+  }, [readerOpen]);
 
   useEffect(() => {
     let live = true;
@@ -189,6 +201,7 @@ export default function App() {
     setBusy(true);
     setError(null);
     setResult(null);
+    setReaderOpen(false);
     if (downloadUrl) {
       URL.revokeObjectURL(downloadUrl);
       setDownloadUrl(null);
@@ -222,6 +235,9 @@ export default function App() {
   const dirProps = mode === 'folder' ? ({ webkitdirectory: '', directory: '' } as any) : {};
   const switchFormat = (id: SourceKind) => {
     setFormat(id);
+    // URL fetching is an HTML-only feature — don't strand the user on the URL
+    // panel (or let a raw .md link silently go through) when they pick Markdown.
+    if (id === 'markdown' && mode === 'url') setMode('paste');
     setDocs([]);
     setImages([]);
     setFetchedContent('');
@@ -230,8 +246,26 @@ export default function App() {
   };
 
   return (
-    <div className="wrap">
-      <div className="topbar">
+    <>
+      {readerOpen && result && (
+        <Suspense
+          fallback={
+            <div className="reader-boot">
+              <span className="reader-spin" />
+              <p>Opening the reader…</p>
+            </div>
+          }
+        >
+          <Reader
+            epub={result.epub}
+            palette={palette}
+            onPalette={setPalette}
+            onClose={() => setReaderOpen(false)}
+          />
+        </Suspense>
+      )}
+      <div className="wrap" hidden={readerOpen}>
+        <div className="topbar">
         <a
           className="gh-link"
           href={REPO_URL}
@@ -314,7 +348,7 @@ export default function App() {
           </div>
 
           <div className="modes">
-            {MODES.map((m) => (
+            {MODES.filter((m) => format === 'html' || m.id !== 'url').map((m) => (
               <button
                 key={m.id}
                 className={`mode-btn ${mode === m.id ? 'active' : ''}`}
@@ -378,7 +412,8 @@ export default function App() {
                     : '○ Limited mode (this static host has no fetcher): only sites that allow cross-origin requests will load. Run locally or deploy to Vercel for full fetch.'}
               </div>
               <p className="url-hint">
-                Pick <b>HTML</b> above for a normal web page, or <b>Markdown</b> for a raw .md link.
+                Fetches a web page and keeps the main article. Use <b>Extract main article</b> above
+                to strip nav &amp; ads, or turn it off to bind the whole page.
               </p>
             </div>
           ) : (
@@ -591,9 +626,14 @@ export default function App() {
                   <span>Equations</span>
                 </div>
               </div>
-              <a className="download-btn" href={downloadUrl} download={result.filename}>
-                ↓ Download {result.filename}
-              </a>
+              <div className="result-actions">
+                <button className="read-btn" onClick={() => setReaderOpen(true)}>
+                  ❧ Read it here
+                </button>
+                <a className="download-btn" href={downloadUrl} download={result.filename}>
+                  ↓ Download {result.filename}
+                </a>
+              </div>
               <p className="send-note">
                 Email it to your <b>@kindle.com</b> address, or use the Send to Kindle app.
               </p>
@@ -625,6 +665,7 @@ export default function App() {
           the output for a smoother read.
         </p>
       </footer>
-    </div>
+      </div>
+    </>
   );
 }
