@@ -54,18 +54,28 @@ body {
 body {
   font-family: var(--serif);
   color: var(--ink);
-  background:
-    radial-gradient(125% 75% at 50% -8%, var(--card) 0%, var(--paper) 52%, var(--paper-2) 100%)
-      fixed;
+  /* NB: no `background-attachment: fixed` — it forces a full repaint on every
+     scroll frame on mobile, which shows up as scroll jitter/shimmer. */
+  background-color: var(--paper);
+  background-image: radial-gradient(
+    125% 75% at 50% -8%,
+    var(--card) 0%,
+    var(--paper) 52%,
+    var(--paper-2) 100%
+  );
+  background-repeat: no-repeat;
+  position: relative;
+  min-height: 100vh;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
   line-height: 1.5;
 }
 
-/* Paper grain */
+/* Paper grain — absolute (scrolls with the page) rather than fixed, so it
+   doesn't shimmer against moving content during momentum scroll. */
 body::before {
   content: '';
-  position: fixed;
+  position: absolute;
   inset: 0;
   pointer-events: none;
   z-index: 0;
@@ -90,6 +100,8 @@ body::before {
 /* ---------- Top bar (source link + palette switch) ---------- */
 .topbar {
   display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
   align-items: center;
   justify-content: space-between;
   padding-top: 22px;
@@ -205,8 +217,11 @@ body::before {
 }
 .seal {
   display: inline-flex;
+  flex-wrap: wrap;
+  justify-content: center;
   align-items: center;
-  gap: 11px;
+  gap: 6px 11px;
+  max-width: 100%;
   margin-top: 30px;
   padding: 9px 18px;
   border: 1px solid var(--line);
@@ -309,6 +324,9 @@ body::before {
 }
 .seg {
   display: inline-flex;
+  flex-wrap: wrap;
+  row-gap: 3px;
+  max-width: 100%;
   background: var(--paper-2);
   border: 1px solid var(--line);
   border-radius: 999px;
@@ -961,7 +979,11 @@ select:focus,
 @media (max-width: 620px) {
   .fields-row {
     grid-template-columns: 1fr;
-    gap: 0;
+    gap: 26px;
+  }
+  /* Wrapped segmented controls read as a rounded box of pills, not a stadium. */
+  .seg {
+    border-radius: 16px;
   }
   .step {
     padding: 32px 24px 28px;
