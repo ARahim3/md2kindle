@@ -531,6 +531,9 @@ select:focus,
 .url-status.bad {
   color: #b3401c;
 }
+.url-status.arxiv {
+  color: var(--soft);
+}
 .fetch-badge {
   font-family: var(--mono);
   font-size: 11px;

@@ -53,10 +53,17 @@ export async function fetchText(url: string): Promise<string> {
   return r.text();
 }
 
+// Content types that are never an image. A site that answers a missing image
+// with an error page — or a single-page-app host that serves its index.html for
+// every unknown path — replies 200, and the page would otherwise be embedded in
+// the book as though it were the picture.
+const NOT_AN_IMAGE = /^(text\/html|text\/plain|application\/xhtml\+xml|application\/json)$/i;
+
 export async function fetchBytes(url: string): Promise<{ data: Uint8Array; mediaType: string }> {
   const target = (await hasProxy()) ? proxied(url) : url;
   const r = await fetch(target, { mode: 'cors' });
   if (!r.ok) throw new Error(`HTTP ${r.status}`);
   const ct = r.headers.get('content-type')?.split(';')[0]?.trim();
+  if (ct && NOT_AN_IMAGE.test(ct)) throw new Error(`server sent ${ct}, not an image`);
   return { data: new Uint8Array(await r.arrayBuffer()), mediaType: ct || guessType(url) };
 }

@@ -4,6 +4,7 @@
 
 import type { ConvertOptions, ConvertResult, ProgressFn } from './types';
 import { parseFrontMatter } from './frontmatter';
+import { markdownMetadata } from './peek';
 import { renderMarkdown } from './markdown';
 import { extractHtml } from './html';
 import { AssetRegistry, buildFileIndex } from './images';
@@ -15,11 +16,6 @@ import { slugify } from './slug';
 
 const nextFrame = (): Promise<void> =>
   new Promise((resolve) => requestAnimationFrame(() => resolve()));
-
-function firstHeading(markdown: string): string | null {
-  const m = markdown.match(/^#{1,6}[ \t]+(.+?)[ \t]*#*\s*$/m);
-  return m ? m[1].trim() : null;
-}
 
 function countWords(text: string): number {
   const t = text.trim();
@@ -66,9 +62,7 @@ export async function convert(opts: ConvertOptions, onProgress: ProgressFn): Pro
     onProgress({ stage: 'Rendering Markdown', pct: 0.08 });
     await nextFrame();
     html = renderMarkdown(body);
-    srcTitle = fm.title || firstHeading(body) || undefined;
-    srcAuthor = fm.author || fm.creator || undefined;
-    srcLang = fm.language || fm.lang || undefined;
+    ({ title: srcTitle, author: srcAuthor, language: srcLang } = markdownMetadata(fm, body));
   }
 
   const title = (opts.title || srcTitle || 'Untitled').trim();

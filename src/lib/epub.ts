@@ -90,6 +90,11 @@ ul, ol { margin: 0 0 0.8em 1.4em; }
 .md2k-math-block .md2k-math-img { display: inline-block; }
 .md2k-missing { color: #b00; font-style: italic; font-size: 0.85em; }
 
+/* Display equations lifted out of LaTeXML's layout tables. */
+.md2k-eq { margin: 1em 0; page-break-inside: avoid; break-inside: avoid; }
+.md2k-eq-line { text-align: center; margin: 0.3em 0; }
+.md2k-eqno { font-size: 0.85em; margin-left: 0.6em; }
+
 .task-list-item { list-style: none; }
 .task-list-item-checkbox { margin-right: 0.4em; }
 .footnotes { font-size: 0.85em; border-top: 1px solid #bbb; margin-top: 2em; padding-top: 1em; }

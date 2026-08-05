@@ -44,12 +44,18 @@ send to your Kindle and read the way you'd read a book.
 - **Import a blog by URL.** Paste a link; the page (and its images) are fetched,
   cleaned with Readability, and bound. See [URL fetching](#url-fetching) for how
   this works across hosts.
+- **arXiv papers.** Paste an id (`2410.01383`), a DOI, or any `/abs/`, `/pdf/` or
+  `/html/` link into the URL box. The paper's HTML edition is fetched and bound
+  with its figures, tables and equations, one chapter per section. See
+  [arXiv papers](#arxiv-papers).
 - **Images, kept intact** — embedded (`data:`) images, remote URLs, and local
   files supplied alongside the Markdown.
 - **Mermaid diagrams** — \`\`\`mermaid code blocks are rendered and embedded as
   crisp images.
 - **Math** — `$inline$`, `$$display$$`, and `\(...\)` / `\[...\]`, typeset with
   MathJax. Equations are sized in `em` so they scale with the reader's font.
+  Pages that ship MathML with its LaTeX source (arXiv, Pandoc, KaTeX) are
+  typeset the same way, rather than left to the Kindle's patchy MathML support.
 - **Raw SVG** — inline `<svg>` figures are rasterised and embedded too.
 - **Reader-friendly defaults** — a clean reading stylesheet: hyphenation off so
   words don't break mid-line, and code wraps instead of running off the screen.
@@ -88,6 +94,27 @@ tiers:
 Upload & paste are always 100% on-device. The URL helper only ever sees the
 public link you give it; the public Vercel function additionally refuses
 private/loopback hosts (basic SSRF guard).
+
+### arXiv papers
+
+Drop any of these into the URL box and the paper is fetched for you:
+
+```
+2410.01383                              arXiv:2410.01383v2
+https://arxiv.org/abs/2410.01383        https://arxiv.org/pdf/2410.01383v1
+10.48550/arXiv.2410.01383               hep-th/9901001
+```
+
+The paper's **HTML edition** (`arxiv.org/html/…`) is used, not the PDF — so the
+text reflows properly on a Kindle instead of being stuck in two fixed columns.
+Figures, tables, footnotes and the bibliography are kept; each section becomes a
+chapter, and every equation is typeset as an image so it looks right on any
+Kindle generation. arXiv allows cross-origin requests, so this works on **every**
+host tier above, including static GitHub Pages.
+
+One caveat: arXiv only generates HTML for LaTeX submissions from **December 2023**
+onward, and some conversions fail. When there's no HTML the app says so — those
+papers are PDF-only, and Amazon's Send to Kindle takes PDFs directly.
 
 ## Getting the book onto your Kindle
 
@@ -132,9 +159,11 @@ stages.
 ## How it works
 
 ```
-Markdown
-  └─ front matter → title / author / language
-  └─ markdown-it (+ footnotes, task lists, math plugin) → HTML
+Markdown                          HTML / URL
+  └─ front matter                   └─ arXiv paper?  → take the LaTeXML article
+       → title/author/language      └─ otherwise     → Readability (optional)
+  └─ markdown-it                    └─ MathML + its LaTeX → math placeholder
+       (+ footnotes, task lists, math plugin)
        └─ DOMPurify → safe DOM
             ├─ resolve <img> (data: / remote / local files) → embed
             ├─ raw <svg>           → rasterise → PNG

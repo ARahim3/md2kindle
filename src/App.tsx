@@ -14,6 +14,7 @@ import type {
   ConvertResult,
   ProgressUpdate,
 } from './lib/types';
+import { parseArxivId, arxivHtmlUrl } from './lib/arxivid';
 import { SAMPLE_MD, SAMPLE_HTML } from './sample';
 
 interface SrcDoc {
@@ -123,6 +124,43 @@ export default function App() {
   const pages = Math.max(1, Math.ceil(words / 300));
   const minutes = Math.max(1, Math.ceil(words / 220));
 
+  // Fill the title page from the source itself, so step II is a review rather
+  // than a form and the cover preview shows the real book. We remember exactly
+  // what we filled in: a field the reader has since edited is never overwritten,
+  // and loading a different source replaces only the values still untouched.
+  const autoFilled = useRef({ title: '', author: '', language: 'en' });
+  const [detected, setDetected] = useState(false);
+  const docName = docs[docIndex]?.name;
+
+  useEffect(() => {
+    if (!content.trim()) {
+      setDetected(false);
+      return;
+    }
+    let cancelled = false;
+    // Debounced: in Paste mode `content` changes on every keystroke.
+    const timer = setTimeout(async () => {
+      const { peekMetadata } = await import('./lib/peek');
+      if (cancelled) return;
+      const meta = peekMetadata(content, format, readability);
+      const next = {
+        title: meta.title || docName?.replace(/\.[^.]+$/, '') || '',
+        author: meta.author || '',
+        language: meta.language || 'en',
+      };
+      const prev = autoFilled.current;
+      autoFilled.current = next;
+      setTitle((cur) => (cur === prev.title ? next.title : cur));
+      setAuthor((cur) => (cur === prev.author ? next.author : cur));
+      setLanguage((cur) => (cur === prev.language ? next.language : cur));
+      setDetected(!!(meta.title || meta.author));
+    }, 250);
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
+  }, [content, format, readability, docName]);
+
   useEffect(() => {
     document.documentElement.dataset.palette = palette;
     try {
@@ -160,9 +198,8 @@ export default function App() {
       setDocIndex(0);
       setImages(imgs);
       setResult(null);
-      if (loaded.length && !title) setTitle(loaded[0].name.replace(/\.[^.]+$/, ''));
     },
-    [format, title],
+    [format],
   );
 
   const onDrop = useCallback(
@@ -181,6 +218,9 @@ export default function App() {
     [ingest],
   );
 
+  // An arXiv id, DOI or /abs//pdf/ link all mean "that paper's HTML".
+  const arxivId = parseArxivId(url);
+
   const fetchUrl = useCallback(async () => {
     if (!url.trim()) return;
     setUrlStatus('loading');
@@ -188,14 +228,19 @@ export default function App() {
     setResult(null);
     try {
       const { fetchSource } = await import('./lib/urlsource');
-      const text = await fetchSource(url.trim(), format);
+      const text = await fetchSource(arxivId ? arxivHtmlUrl(arxivId) : url.trim(), format);
       setFetchedContent(text);
       setUrlStatus('ok');
     } catch (err) {
-      setUrlError((err as Error).message || 'Could not fetch that URL.');
+      const message = (err as Error).message || 'Could not fetch that URL.';
+      setUrlError(
+        arxivId && /\b404\b/.test(message)
+          ? `arXiv has no HTML for ${arxivId}. It generates HTML only for LaTeX submissions from December 2023 onward, and some conversions fail — this one is PDF-only.`
+          : message,
+      );
       setUrlStatus('error');
     }
-  }, [url, format]);
+  }, [url, arxivId, format]);
 
   const run = useCallback(async () => {
     setBusy(true);
@@ -381,9 +426,9 @@ export default function App() {
             <div className="url-mode">
               <div className="url-row">
                 <input
-                  type="url"
+                  type="text"
                   className="url-input"
-                  placeholder="https://example.com/a-great-post"
+                  placeholder="https://example.com/a-great-post — or an arXiv id"
                   value={url}
                   onChange={(e) => setUrl(e.target.value)}
                   onKeyDown={(e) => {
@@ -398,6 +443,11 @@ export default function App() {
                   {urlStatus === 'loading' ? 'Fetching…' : 'Fetch'}
                 </button>
               </div>
+              {arxivId && urlStatus !== 'error' && (
+                <p className="url-status arxiv">
+                  arXiv paper <b>{arxivId}</b> → fetching {arxivHtmlUrl(arxivId).replace(/^https:\/\//, '')}
+                </p>
+              )}
               {urlStatus === 'ok' && (
                 <p className="url-status ok">
                   ✓ Loaded {fetchedContent.length.toLocaleString()} characters — ready to bind below.
@@ -414,6 +464,10 @@ export default function App() {
               <p className="url-hint">
                 Fetches a web page and keeps the main article. Use <b>Extract main article</b> above
                 to strip nav &amp; ads, or turn it off to bind the whole page.
+                <br />
+                For an arXiv paper, paste the id (<code>2410.01383</code>), its DOI, or any
+                abs/pdf/html link — the HTML version is fetched and typeset with its figures and
+                equations. Papers older than Dec 2023 are usually PDF-only.
               </p>
             </div>
           ) : (
@@ -504,7 +558,9 @@ export default function App() {
               <span className="step-num">II.</span>
               <h2 className="step-title">Title page &amp; structure</h2>
             </div>
-            <span className="step-hint">Blank fields are filled in automatically.</span>
+            <span className="step-hint">
+              {detected ? 'Read from your source — edit anything.' : 'Blank fields are filled in automatically.'}
+            </span>
           </div>
 
           <div className="field">
@@ -588,7 +644,9 @@ export default function App() {
           <button className="btn-primary" disabled={!canConvert} onClick={run}>
             {busy ? 'Binding…' : 'Bind the EPUB'}
           </button>
-          <div className="bind-note">EPUB · pressed entirely on this device</div>
+          <div className="bind-note">
+            {content.trim() ? 'EPUB · pressed entirely on this device' : 'Add a source in step I to begin.'}
+          </div>
 
           {busy && progress && (
             <div className="progress">
