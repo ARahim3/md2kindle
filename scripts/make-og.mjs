@@ -31,7 +31,7 @@ const html = `<!doctype html><html><head><meta charset="utf-8">
   ${PM('tl')}${PM('tr')}${PM('bl')}${PM('br')}
 
   <div style="position:relative;max-width:660px;">
-    <div style="font-family:'IBM Plex Mono',monospace;font-size:18px;font-weight:600;letter-spacing:0.32em;text-transform:uppercase;color:${P.accent};margin-bottom:26px;">Markdown · HTML → Kindle EPUB</div>
+    <div style="font-family:'IBM Plex Mono',monospace;font-size:18px;font-weight:600;letter-spacing:0.32em;text-transform:uppercase;color:${P.accent};margin-bottom:26px;">Markdown · HTML · arXiv → Kindle EPUB</div>
 
     <div style="display:flex;align-items:baseline;line-height:0.9;margin-bottom:24px;">
       <span style="font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:96px;letter-spacing:-0.05em;color:${P.ink};">md</span>
@@ -44,7 +44,7 @@ const html = `<!doctype html><html><head><meta charset="utf-8">
       <span style="font-style:italic;font-size:25px;color:${P.soft};">An on-device press</span>
     </div>
 
-    <p style="font-size:30px;line-height:1.5;color:${P.ink};">Turn your Markdown or HTML — diagrams, equations and images and all — into a clean, Kindle-ready EPUB. Right in your browser; nothing is ever uploaded.</p>
+    <p style="font-size:30px;line-height:1.5;color:${P.ink};">Turn Markdown, HTML, a web page or an arXiv paper — diagrams, equations, images and all — into a clean, Kindle-ready EPUB. Right in your browser; nothing is ever uploaded.</p>
 
     <div style="margin-top:30px;font-family:'IBM Plex Mono',monospace;font-size:19px;font-weight:600;color:${P.accentDeep};">md2kindle.vercel.app</div>
   </div>

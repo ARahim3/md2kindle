@@ -35,13 +35,20 @@ const FORMATS: { id: SourceKind; label: string }[] = [
   { id: 'html', label: 'HTML' },
 ];
 
+// Ordered by what someone actually arrives holding. For HTML that's a link
+// (nobody has raw markup on their clipboard); for Markdown it's a file. Paste
+// sits last in both: it needs you to have copied something already, so it reads
+// as the escape hatch rather than the starting point.
 const MODES: { id: InputMode; label: string; hint: string }[] = [
-  { id: 'paste', label: 'Paste', hint: 'Paste your text straight in — best for quick documents.' },
-  { id: 'url', label: 'URL', hint: 'Fetch a web page by link, images and all.' },
+  { id: 'url', label: 'URL', hint: 'Fetch a web page or an arXiv paper by link, images and all.' },
   { id: 'file', label: 'Single file', hint: 'Choose one document file from your device.' },
   { id: 'files', label: 'File + images', hint: 'Pick the document with its image files (matched by name).' },
   { id: 'folder', label: 'Folder', hint: 'Drop a whole folder; relative image paths resolve automatically.' },
+  { id: 'paste', label: 'Paste', hint: 'Paste your text straight in — best for quick documents.' },
 ];
+
+/** Where each format starts: the leftmost mode is also the preselected one. */
+const DEFAULT_MODE: Record<SourceKind, InputMode> = { markdown: 'file', html: 'url' };
 
 const SPLIT_LABELS: Record<ChapterSplit, string> = {
   auto: 'Automatic (recommended)',
@@ -84,7 +91,7 @@ export default function App() {
   );
   const [format, setFormat] = useState<SourceKind>('markdown');
   const [readability, setReadability] = useState(true);
-  const [mode, setMode] = useState<InputMode>('paste');
+  const [mode, setMode] = useState<InputMode>(DEFAULT_MODE.markdown);
   const [pasteText, setPasteText] = useState('');
   const [docs, setDocs] = useState<SrcDoc[]>([]);
   const [docIndex, setDocIndex] = useState(0);
@@ -280,9 +287,11 @@ export default function App() {
   const dirProps = mode === 'folder' ? ({ webkitdirectory: '', directory: '' } as any) : {};
   const switchFormat = (id: SourceKind) => {
     setFormat(id);
-    // URL fetching is an HTML-only feature — don't strand the user on the URL
-    // panel (or let a raw .md link silently go through) when they pick Markdown.
-    if (id === 'markdown' && mode === 'url') setMode('paste');
+    // Switching format is already a full reset, so return to that format's
+    // natural starting point: a link for HTML, a file for Markdown. This also
+    // keeps a Markdown source off the HTML-only URL panel, where a raw .md link
+    // would silently give confusing output.
+    setMode(DEFAULT_MODE[id]);
     setDocs([]);
     setImages([]);
     setFetchedContent('');
@@ -335,7 +344,7 @@ export default function App() {
       </div>
 
       <header className="masthead">
-        <p className="masthead-kicker">Markdown, bound for the page</p>
+        <p className="masthead-kicker">What you meant to read, bound for the page</p>
         <div className="wordmark">
           <span className="wm-md">md</span>
           <span className="wm-2">2</span>
@@ -345,8 +354,9 @@ export default function App() {
           <span>An on-device press</span>
         </div>
         <p className="masthead-sub">
-          Turn your Markdown or HTML — diagrams, equations, images and all — into a clean,
-          Kindle-ready EPUB. Hyphenation is switched off for you, so the reading flow stays smooth.
+          Turn Markdown, HTML, a web page or an arXiv paper — diagrams, equations, images and all —
+          into a clean, Kindle-ready EPUB. Chapters, a table of contents and reader-friendly type
+          are set for you.
         </p>
         <div className="seal">
           <span className="dot" />
@@ -532,16 +542,19 @@ export default function App() {
           )}
 
           <div className="editor-foot">
-            {mode === 'paste' && (
-              <button
-                className="ghost-btn"
-                onClick={() => setPasteText(format === 'html' ? SAMPLE_HTML : SAMPLE_MD)}
-              >
-                {format === 'html'
-                  ? '✦ Load a sample blog page (HTML)'
-                  : '✦ Load a sample (math, a diagram & a table)'}
-              </button>
-            )}
+            {/* Reachable from every mode: the landing mode now wants a file or a
+                link, so this stays the one-click way to see what the tool does. */}
+            <button
+              className="ghost-btn"
+              onClick={() => {
+                setPasteText(format === 'html' ? SAMPLE_HTML : SAMPLE_MD);
+                setMode('paste');
+              }}
+            >
+              {format === 'html'
+                ? '✦ Load a sample blog page (HTML)'
+                : '✦ Load a sample (math, a diagram & a table)'}
+            </button>
             {words > 0 && (
               <span className="editor-meta">
                 ≈ {words.toLocaleString()} words · ~{pages} Kindle pages · {minutes} min read

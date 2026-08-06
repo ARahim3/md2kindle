@@ -240,6 +240,37 @@ assert(
 );
 
 // ---------------------------------------------------------------------------
+// Source panel: the leftmost mode is what you probably arrived holding, and it
+// is the one already selected. Paste is last — it needs a filled clipboard.
+// ---------------------------------------------------------------------------
+await page.goto(BASE_URL, { waitUntil: 'networkidle' });
+const modeLabels = () => page.locator('.modes .mode-btn').allTextContents();
+const activeMode = () => page.locator('.modes .mode-btn.active').textContent();
+
+assert(
+  (await modeLabels()).join('|') === 'Single file|File + images|Folder|Paste',
+  'modes: Markdown starts at a file, Paste last',
+);
+assert((await activeMode()) === 'Single file', 'modes: Markdown preselects Single file');
+
+await page.getByRole('button', { name: 'HTML' }).click();
+assert(
+  (await modeLabels()).join('|') === 'URL|Single file|File + images|Folder|Paste',
+  'modes: HTML leads with URL, Paste last',
+);
+assert((await activeMode()) === 'URL', 'modes: HTML preselects URL');
+
+// Switching back must not strand you on the HTML-only URL panel.
+await page.getByRole('button', { name: 'Markdown' }).click();
+assert((await activeMode()) === 'Single file', 'modes: leaving HTML on URL falls back cleanly');
+
+// The sample is the one-click "show me what this does", so it has to work from
+// a mode that has no textarea.
+await page.getByRole('button', { name: /Load a sample/ }).click();
+assert((await activeMode()) === 'Paste', 'modes: the sample button switches to Paste and loads it');
+assert((await page.locator('textarea').inputValue()).length > 100, 'modes: sample text loaded');
+
+// ---------------------------------------------------------------------------
 // The title page fills itself in from the source (and respects your edits)
 // ---------------------------------------------------------------------------
 const titleField = () => page.locator('.field input').first();
@@ -290,6 +321,7 @@ assert(
 );
 
 await page.goto(BASE_URL, { waitUntil: 'networkidle' });
+await page.getByRole('button', { name: 'Paste', exact: true }).click();
 await page.locator('textarea').fill('---\ntitle: Front Matter Wins\nauthor: A. Writer\nlanguage: fr\n---\n\n# Heading\n\nBody.');
 await page.waitForTimeout(900);
 assert((await titleField().inputValue()) === 'Front Matter Wins', 'autofill: Markdown front-matter title');
