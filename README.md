@@ -96,6 +96,11 @@ Upload & paste are always 100% on-device. The URL helper only ever sees the
 public link you give it; the public Vercel function additionally refuses
 private/loopback hosts (basic SSRF guard).
 
+> **On analytics.** The hosted site counts anonymous page views via Vercel Web
+> Analytics — cookieless, served from its own origin, and it never sees the
+> document you're converting. It's a build-time dependency only: self-host or run
+> locally and no analytics call is made at all.
+
 ### arXiv papers
 
 Drop any of these into the URL box and the paper is fetched for you:

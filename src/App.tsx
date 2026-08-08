@@ -739,6 +739,10 @@ export default function App() {
           Modern Kindles accept EPUB directly (MOBI was retired in 2025). Hyphenation is disabled in
           the output for a smoother read.
         </p>
+        <p className="note">
+          Your documents are converted in this tab and are never uploaded. The site itself counts
+          anonymous page views — no cookies, and nothing about what you convert.
+        </p>
       </footer>
       </div>
     </>
