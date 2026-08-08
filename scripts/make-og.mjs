@@ -46,7 +46,7 @@ const html = `<!doctype html><html><head><meta charset="utf-8">
 
     <p style="font-size:30px;line-height:1.5;color:${P.ink};">Turn Markdown, HTML, a web page or an arXiv paper — diagrams, equations, images and all — into a clean, Kindle-ready EPUB. Right in your browser; nothing is ever uploaded.</p>
 
-    <div style="margin-top:30px;font-family:'IBM Plex Mono',monospace;font-size:19px;font-weight:600;color:${P.accentDeep};">md2kindle.vercel.app</div>
+    <div style="margin-top:30px;font-family:'IBM Plex Mono',monospace;font-size:19px;font-weight:600;color:${P.accentDeep};">md2kindle.arahim.dev</div>
   </div>
 
   <div style="position:relative;flex:none;width:264px;height:372px;border-radius:24px;background:linear-gradient(160deg,${P.paper2},${P.paper});border:1px solid ${P.line};padding:16px;box-shadow:0 34px 56px -30px rgba(40,30,18,0.55),0 1px 0 rgba(255,255,255,0.5) inset;">

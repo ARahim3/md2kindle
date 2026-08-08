@@ -121,7 +121,7 @@ assert(!/Cookie policy|Newsletter|Subscribe for weekly/.test(body2), 'HTML: Read
 // ---------------------------------------------------------------------------
 await page.goto(BASE_URL, { waitUntil: 'networkidle' });
 await page.getByRole('button', { name: 'HTML' }).click();
-await page.getByRole('button', { name: 'URL', exact: true }).click();
+await page.getByRole('button', { name: 'URL / arXiv', exact: true }).click();
 await page.locator('.url-input').fill(`${BASE_URL}/fixture/post.html`);
 await page.getByRole('button', { name: 'Fetch' }).click();
 await page.locator('.url-status.ok').waitFor({ timeout: 30000 });
@@ -174,9 +174,23 @@ assert(
   'arXiv id maps to its HTML URL',
 );
 
+// The URL box advertises that a whole paper link works, not just a bare id —
+// every form a reader might copy has to normalise to the same HTML URL.
+const sameTarget = [
+  '2410.01383',
+  'arXiv:2410.01383',
+  'https://arxiv.org/abs/2410.01383',
+  'https://arxiv.org/pdf/2410.01383',
+  'https://doi.org/10.48550/arXiv.2410.01383',
+].map((s) => arxivHtmlUrl(parseArxivId(s)));
+assert(
+  new Set(sameTarget).size === 1 && sameTarget[0] === 'https://arxiv.org/html/2410.01383',
+  'arXiv: an id, a reference, an abs/pdf link and a DOI all resolve to one paper',
+);
+
 await page.goto(BASE_URL, { waitUntil: 'networkidle' });
 await page.getByRole('button', { name: 'HTML' }).click();
-await page.getByRole('button', { name: 'URL', exact: true }).click();
+await page.getByRole('button', { name: 'URL / arXiv', exact: true }).click();
 await page.locator('.url-input').fill(`${BASE_URL}/fixture/paper.html`);
 await page.getByRole('button', { name: 'Fetch' }).click();
 await page.locator('.url-status.ok').waitFor({ timeout: 30000 });
@@ -255,10 +269,10 @@ assert((await activeMode()) === 'Single file', 'modes: Markdown preselects Singl
 
 await page.getByRole('button', { name: 'HTML' }).click();
 assert(
-  (await modeLabels()).join('|') === 'URL|Single file|File + images|Folder|Paste',
+  (await modeLabels()).join('|') === 'URL / arXiv|Single file|File + images|Folder|Paste',
   'modes: HTML leads with URL, Paste last',
 );
-assert((await activeMode()) === 'URL', 'modes: HTML preselects URL');
+assert((await activeMode()) === 'URL / arXiv', 'modes: HTML preselects URL');
 
 // Switching back must not strand you on the HTML-only URL panel.
 await page.getByRole('button', { name: 'Markdown' }).click();
@@ -279,7 +293,7 @@ const langField = () => page.locator('.fields-row input').nth(1);
 
 await page.goto(BASE_URL, { waitUntil: 'networkidle' });
 await page.getByRole('button', { name: 'HTML' }).click();
-await page.getByRole('button', { name: 'URL', exact: true }).click();
+await page.getByRole('button', { name: 'URL / arXiv', exact: true }).click();
 await page.locator('.url-input').fill(`${BASE_URL}/fixture/paper.html`);
 await page.getByRole('button', { name: 'Fetch' }).click();
 await page.locator('.url-status.ok').waitFor({ timeout: 30000 });

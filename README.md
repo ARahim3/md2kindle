@@ -1,14 +1,15 @@
 # md2kindle
 
-**Turn Markdown or HTML into a clean, Kindle-ready EPUB — entirely in your browser.**
-Diagrams, equations and images included. Nothing is ever uploaded.
+**Turn Markdown, HTML, a web page or an arXiv paper into a clean, Kindle-ready
+EPUB — entirely in your browser.** Diagrams, equations and images included.
+Nothing is ever uploaded.
 
 <p align="center">
-  <a href="https://md2kindle.vercel.app/">
-    <img src="docs/md2kindle_site.png" alt="md2kindle — Markdown & HTML to a Kindle-ready EPUB, entirely on your device" width="620">
+  <a href="https://md2kindle.arahim.dev/">
+    <img src="docs/md2kindle_site2.png" alt="md2kindle — Markdown, HTML, web pages and arXiv papers to a Kindle-ready EPUB, entirely on your device" width="620">
   </a>
   <br />
-  <a href="https://md2kindle.vercel.app/"><b>→ Try it live at md2kindle.vercel.app</b></a>
+  <a href="https://md2kindle.arahim.dev/"><b>→ Try it live at md2kindle.arahim.dev</b></a>
 </p>
 
 ## Why this exists
@@ -68,15 +69,15 @@ send to your Kindle and read the way you'd read a book.
 
 ## Bringing in your content
 
-Pick a format (**Markdown** or **HTML**), then one of four ways to supply it:
+Pick a format (**Markdown** or **HTML**), then one of five ways to supply it:
 
 | Mode | Use it for |
 |------|------------|
-| **Paste** | Quick notes, or a copied HTML page. |
-| **URL** | Fetch a web page (or raw file) by link — images and all. |
+| **URL / arXiv** | Fetch a web page or a paper by link — images and all. HTML only. |
 | **Single file** | One `.md` or `.html`. |
 | **File + images** | Pick the document together with its image files (matched by name). |
 | **Folder** | Drop a whole folder; relative image paths (`images/fig.png`) resolve automatically. |
+| **Paste** | Quick notes, or a copied HTML page. |
 
 ### URL fetching
 

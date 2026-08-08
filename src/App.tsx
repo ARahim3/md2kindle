@@ -40,7 +40,11 @@ const FORMATS: { id: SourceKind; label: string }[] = [
 // sits last in both: it needs you to have copied something already, so it reads
 // as the escape hatch rather than the starting point.
 const MODES: { id: InputMode; label: string; hint: string }[] = [
-  { id: 'url', label: 'URL', hint: 'Fetch a web page or an arXiv paper by link, images and all.' },
+  {
+    id: 'url',
+    label: 'URL / arXiv',
+    hint: 'Fetch a web page or an arXiv paper by link, images and all.',
+  },
   { id: 'file', label: 'Single file', hint: 'Choose one document file from your device.' },
   { id: 'files', label: 'File + images', hint: 'Pick the document with its image files (matched by name).' },
   { id: 'folder', label: 'Folder', hint: 'Drop a whole folder; relative image paths resolve automatically.' },
@@ -438,7 +442,7 @@ export default function App() {
                 <input
                   type="text"
                   className="url-input"
-                  placeholder="https://example.com/a-great-post — or an arXiv id"
+                  placeholder="https://example.com/a-great-post — or an arXiv link or id"
                   value={url}
                   onChange={(e) => setUrl(e.target.value)}
                   onKeyDown={(e) => {
