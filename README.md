@@ -100,6 +100,9 @@ private/loopback hosts (basic SSRF guard).
 > Analytics — cookieless, served from its own origin, and it never sees the
 > document you're converting. It's a build-time dependency only: self-host or run
 > locally and no analytics call is made at all.
+>
+> Webfonts are self-hosted too, so the page makes **no third-party requests at
+> all** — and works offline once loaded.
 
 ### arXiv papers
 
